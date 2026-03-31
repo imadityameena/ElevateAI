@@ -18,6 +18,19 @@ app.use(
   }),
 );
 
+app.get("/", (req, res) => {
+  res.status(200).json({
+    message: "ElevateAI backend is running",
+    docs: "/api/auth and /api/interview",
+  });
+});
+
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
+
+
 /* require all the routes here */
 const authRouter = require("./routes/auth.routes");
 const interviewRouter = require("./routes/interview.routes");
