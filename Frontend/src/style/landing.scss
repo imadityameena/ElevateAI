@@ -328,6 +328,12 @@
                 border-color: #d20d3b;
                 transform: translateY(-4px);
             }
+
+            &.featured {
+                grid-column: span 1;
+                border: 1.5px solid #d20d3b;
+                background: rgba(210, 13, 59, 0.1);
+            }
         }
     }
 }

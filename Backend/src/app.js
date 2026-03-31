@@ -4,48 +4,34 @@ const cors = require("cors");
 
 const app = express();
 
-const normalizeOrigin = (origin = "") => origin.trim().replace(/\/+$/, "");
-
 const allowedOrigins = (process.env.CLIENT_ORIGIN || "http://localhost:5173")
   .split(",")
-  .map((origin) => normalizeOrigin(origin))
+  .map((origin) => origin.trim())
   .filter(Boolean);
 
 app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Allow non-browser clients like server-to-server calls and health checks.
-      if (!origin) {
-        callback(null, true);
-        return;
-      }
-
-      const normalizedOrigin = normalizeOrigin(origin);
-
-      if (allowedOrigins.includes(normalizedOrigin)) {
-        callback(null, true);
-        return;
-      }
-
-      callback(new Error(`CORS blocked for origin: ${origin}`));
-    },
+    origin: allowedOrigins,
     credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    optionsSuccessStatus: 204,
   }),
 );
 
+
 app.get("/", (req, res) => {
   res.status(200).json({
-    message: "ElevateAI backend is running",
-    docs: "/api/auth and /api/interview",
+    service: "ElevateAI Backend",
+    status: "ok",
+    message: "API is running",
   });
 });
 
-app.get("/health", (req, res) => {
-  res.status(200).json({ status: "ok" });
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    uptime: process.uptime(),
+  });
 });
 
 

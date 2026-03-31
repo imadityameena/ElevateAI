@@ -154,7 +154,7 @@ const Landing = () => {
                 analytics
               </p>
             </div>
-            <div className="feature-card">
+            <div className="feature-card featured">
               <div className="icon">✓</div>
               <h3>Unlimited Practice</h3>
               <p>
