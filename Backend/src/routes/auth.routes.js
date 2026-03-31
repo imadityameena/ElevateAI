@@ -4,18 +4,6 @@ const authMiddleware = require("../middlewares/auth.middleware")
 
 const authRouter = Router()
 
-authRouter.get("/", (req, res) => {
-	res.status(200).json({
-		message: "Auth API is available",
-		endpoints: [
-			"POST /api/auth/register",
-			"POST /api/auth/login",
-			"GET /api/auth/logout",
-			"GET /api/auth/get-me",
-		],
-	})
-})
-
 /**
  * @route POST /api/auth/register
  * @description Register a new user
@@ -45,7 +33,7 @@ authRouter.get("/logout", authController.logoutUserController)
  * @description get the current logged in user details
  * @access private
  */
-authRouter.get("/get-me", authMiddleware.authUser, authController.getMeController)
+authRouter.get("/get-me", authMiddleware.optionalAuthUser, authController.getMeController)
 
 
 module.exports = authRouter

@@ -6,9 +6,10 @@ const app = express();
 
 const allowedOrigins = (process.env.CLIENT_ORIGIN || "http://localhost:5173")
   .split(",")
-  .map((origin) => origin.trim())
+  .map((origin) => origin.trim().replace(/\/$/, ""))
   .filter(Boolean);
 
+app.set("trust proxy", 1);
 app.use(express.json());
 app.use(cookieParser());
 app.use(
@@ -17,22 +18,6 @@ app.use(
     credentials: true,
   }),
 );
-
-
-app.get("/", (req, res) => {
-  res.status(200).json({
-    service: "ElevateAI Backend",
-    status: "ok",
-    message: "API is running",
-  });
-});
-
-app.get("/api/health", (req, res) => {
-  res.status(200).json({
-    status: "ok",
-    uptime: process.uptime(),
-  });
-});
 
 
 

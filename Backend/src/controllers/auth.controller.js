@@ -3,13 +3,15 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const tokenBlacklistModel = require("../models/blacklist.model");
 
-function getCookieOptions() {
+function getCookieOptions(req) {
   const isProduction = process.env.NODE_ENV === "production";
+  const isSecureRequest = req.secure || req.headers["x-forwarded-proto"] === "https";
+  const shouldUseSecureCookie = isProduction && isSecureRequest;
 
   return {
     httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
+    secure: shouldUseSecureCookie,
+    sameSite: shouldUseSecureCookie ? "none" : "lax",
     maxAge: 24 * 60 * 60 * 1000,
   };
 }
@@ -52,7 +54,7 @@ async function registerUserController(req, res) {
     { expiresIn: "1d" },
   );
 
-  res.cookie("token", token, getCookieOptions());
+  res.cookie("token", token, getCookieOptions(req));
 
   res.status(201).json({
     message: "User registered successfully",
@@ -94,7 +96,7 @@ async function loginUserController(req, res) {
     { expiresIn: "1d" },
   );
 
-  res.cookie("token", token, getCookieOptions());
+  res.cookie("token", token, getCookieOptions(req));
   res.status(200).json({
     message: "User loggedIn successfully.",
     user: {
@@ -117,7 +119,7 @@ async function logoutUserController(req, res) {
     await tokenBlacklistModel.create({ token });
   }
 
-  res.clearCookie("token", getCookieOptions());
+  res.clearCookie("token", getCookieOptions(req));
 
   res.status(200).json({
     message: "User logged out successfully",
@@ -130,7 +132,21 @@ async function logoutUserController(req, res) {
  * @access private
  */
 async function getMeController(req, res) {
+  if (!req.user?.id) {
+    return res.status(200).json({
+      message: "No active session",
+      user: null,
+    });
+  }
+
   const user = await userModel.findById(req.user.id);
+
+  if (!user) {
+    return res.status(200).json({
+      message: "No active session",
+      user: null,
+    });
+  }
 
   res.status(200).json({
     message: "User details fetched successfully",
